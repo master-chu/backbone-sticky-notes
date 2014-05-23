@@ -1,3 +1,11 @@
+// the array-less define call makes it so you can require stuff.
+// if you put in an array and put require as a dep, it get's screwy.
+define(function(require){
+  var Backbone = require('backbone'),
+    literallyAnything = require('handlebars');
+});
+
+// example main.js
 requirejs.config({
   baseUrl: '../app',
   paths: {
