@@ -1,5 +1,5 @@
-define(['backbone', 'handlebars', 'text!templates/notes.html', 'jquery-ui'], 
-  function(Backbone, Handlebars, template){
+define(['backbone', 'handlebars', 'models/note', 'text!templates/notes.html', 'jquery-ui'], 
+  function(Backbone, Handlebars, NoteModel, template){
   'use strict';
 
   var NotesView = Backbone.View.extend({
@@ -23,6 +23,11 @@ define(['backbone', 'handlebars', 'text!templates/notes.html', 'jquery-ui'],
       // console.log("{" + oldX + ", " + oldY + "}");
       
       parentNote.effect('bounce', { distance: 4, times: 2}, 'fast');
+    },
+
+    newNote: function(param){
+      console.log(param);
+      this.collection.add(new NoteModel());
     },
 
     render: function(){

@@ -1,5 +1,7 @@
-define(['views/notes', 'models/note', 'collections/notes'], function(NotesView, NoteModel, NotesCollection){
+define(['views/toolbar', 'views/notes', 'models/note', 'collections/notes'], 
+  function(ToolbarView, NotesView, NoteModel, NotesCollection){
   'use strict';
+
   var btApp = {
     initialize: function(){
       var note1 = new NoteModel({
@@ -30,6 +32,12 @@ define(['views/notes', 'models/note', 'collections/notes'], function(NotesView, 
       });
       notesView.setElement('#notes');
       notesView.render();
+
+      var toolbarView = new ToolbarView();
+      toolbarView.setElement('#toolbar');
+      toolbarView.render();
+
+      notesView.listenTo(toolbarView, 'newNote', notesView.newNoteCallback);
     }    
   }
   return btApp;
