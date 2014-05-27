@@ -6,6 +6,7 @@ define(['views/notes', 'models/note', 'collections/notes'], function(NotesView, 
         content: 'The first note'
       });
       var note2 = new NoteModel({
+        color: 'red',
         content: 'The second note'
       });
 
