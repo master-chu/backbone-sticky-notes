@@ -1,17 +1,28 @@
-define(function(require){
+define(['backbone', 'handlebars', 'text!templates/notes.html', 'jquery-ui'], 
+  function(Backbone, Handlebars, template){
   'use strict';
-  var Backbone = require('backbone'),
-    Handlebars = require('handlebars'),
-    template   = require('text!templates/notes.html');
 
   var NotesView = Backbone.View.extend({
 
     events: {
-      'click .note': 'acknowledgeClick'
+      'mouseup .handle': 'handleReleaseHandler'
     },
 
-    acknowledgeClick: function(event){
-      $(event.target).css('color', 'white');
+    handleReleaseHandler: function(event){
+      var handle = $(event.target),
+        parentNote = handle.closest('.note'),
+        newX = parentNote.offset().top,
+        newY = parentNote.offset().left;
+
+      // var oldX = parentNote.data('x'),
+      //   oldY = parentNote.data('y');
+
+      parentNote.data('x', newX);
+      parentNote.data('y', newY);
+      
+      // console.log("{" + oldX + ", " + oldY + "}");
+      
+      parentNote.effect('bounce', { distance: 4, times: 2}, 'fast');
     },
 
     render: function(){
@@ -26,11 +37,21 @@ define(function(require){
       var self = this;
 
       $('.note').each(function(index, value){
-        var note = $(value);
-
-        self.setSize(note);
-        self.setColor(note);
+        self.initializeNote($(value));
       });
+
+      $('.note').draggable({
+        containment: "#notes",
+        handle: '.handle'
+      });
+
+      $('.handle').hover()
+    },
+
+    initializeNote: function(note){
+      this.setSize(note);
+      this.setBackgroundColor(note);
+      this.setPosition(note);
     },
 
     setSize: function(note){
@@ -41,15 +62,20 @@ define(function(require){
       note.css('height', height + 'px');
     },
 
-    setColor: function(note){
+    setPosition: function(note){
+      var x = note.data('x'),
+        y = note.data('y');
+
+      note.offset({
+        left: x,
+        top: y
+      });
+    },
+
+    setBackgroundColor: function(note){
       var color = note.data('color');
-      
-      note.addClass(color);
+      note.css('background-color', color);
     }
-
-
-
-
   });
 
   return NotesView;

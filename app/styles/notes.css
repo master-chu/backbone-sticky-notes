@@ -1,0 +1,22 @@
+#notes {
+  border: 1px solid darkgrey;
+}
+
+.note {
+  position: relative;
+  box-shadow: 5px 5px 5px grey;
+}
+
+.note .handle {
+  text-align: center;
+  background-color: grey;
+  cursor: move;
+}
+
+.note .handle:hover {
+  background-color: lightgrey;
+}
+
+.note .content {
+  
+}

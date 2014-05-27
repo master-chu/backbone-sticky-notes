@@ -1,7 +1,12 @@
-<div> 
-  {{#each notes}}
-    <div class="note" data-color="{{color}}" data-width="{{width}}" data-height="{{height}}"> 
+<div>
+{{#each notes}}
+  <div class="note" data-x="{{x}}" data-y="{{y}}" data-width="{{width}}" data-height="{{height}}" data-color="{{color}}">
+    <div class="handle">
+      click here to drag
+    </div>
+    <div class="content" contenteditable="true">
       {{content}}
     </div>
-  {{/each}}
+  </div>
+{{/each}}
 </div>

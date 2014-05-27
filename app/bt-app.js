@@ -3,10 +3,19 @@ define(['views/notes', 'models/note', 'collections/notes'], function(NotesView, 
   var btApp = {
     initialize: function(){
       var note1 = new NoteModel({
+        x: 100,
+        y: 100,
+        width: 300,
+        height: 200,
+        color: 'crimson',
         content: 'The first note'
       });
       var note2 = new NoteModel({
-        color: 'red',
+        x: 500,
+        y: 100,
+        width: 200,
+        height: 300,
+        color: 'skyblue',
         content: 'The second note'
       });
 
