@@ -2,22 +2,54 @@ define(function(require){
   'use strict';
   var Backbone = require('backbone'),
     Handlebars = require('handlebars'),
-    template   = require('text!templates/note.html');
+    template   = require('text!templates/notes.html');
 
   var NotesView = Backbone.View.extend({
+
+    events: {
+      'click .note': 'acknowledgeClick'
+    },
+
+    acknowledgeClick: function(event){
+      $(event.target).css('color', 'white');
+    },
+
     render: function(){
       var notes = this.collection.toJSON();
       var compiledTemplate = Handlebars.compile(template);
       this.$el.html(compiledTemplate({notes: notes}));
-      this.setColors();
+
+      this.initializeNotes();
     },
 
-    setColors: function(){
-      this.collection.each(function(noteModel){
+    initializeNotes: function(){
+      var self = this;
 
-        console.log(noteModel.get('color'));
-      })
+      $('.note').each(function(index, value){
+        var note = $(value);
+
+        self.setSize(note);
+        self.setColor(note);
+      });
+    },
+
+    setSize: function(note){
+      var width = note.data('width'),
+        height = note.data('height');
+
+      note.css('width', width + 'px');
+      note.css('height', height + 'px');
+    },
+
+    setColor: function(note){
+      var color = note.data('color');
+      
+      note.addClass(color);
     }
+
+
+
+
   });
 
   return NotesView;
