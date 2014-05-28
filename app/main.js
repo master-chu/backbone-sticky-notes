@@ -7,6 +7,7 @@ requirejs.config({
     'jquery-ui': 'lib/jquery-ui/js/jquery-ui',
     underscore: 'lib/underscore',
     backbone: 'lib/backbone',
+    localstorage: 'lib/backbone.localStorage',
     handlebars: 'lib/handlebars',
     bootstrap: 'lib/bootstrap/bootstrap',
 

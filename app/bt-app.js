@@ -27,6 +27,9 @@ define(['views/toolbar', 'views/notes', 'models/note', 'collections/notes'],
         note2
       ]);
 
+      // notesCollection.sync('create', note1, {success: function(){console.log('success')}});
+      // notesCollection.sync('create', note2, {success: function(){console.log('success')}});
+
       var notesView = new NotesView({
         collection: notesCollection
       });

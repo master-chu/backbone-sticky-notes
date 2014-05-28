@@ -68,6 +68,8 @@ define(['backbone', 'handlebars', 'models/note', 'text!templates/notes.html', 'j
              y: newY
            });
           note.effect('bounce', { distance: 4, times: 2}, 'fast');
+
+          //self.collection.sync('update', noteModel, {success:function(){console.log('saved position')}});
         }
       });
 
@@ -91,6 +93,8 @@ define(['backbone', 'handlebars', 'models/note', 'text!templates/notes.html', 'j
             width: newWidth,
             height: newHeight
           });
+
+          //self.collection.sync('update', noteModel, {success:function(){console.log('saved size')}});
         }
       });
 
