@@ -1,4 +1,4 @@
-define(['backbone', 'handlebars', 'text!templates/toolbar.html', 'jquery-ui'], 
+define(['backbone', 'handlebars', 'text!templates/toolbar.html'], 
   function(Backbone, Handlebars, template){
   'use strict';
 

@@ -6,7 +6,7 @@
 
 .note {
   position: absolute !important;
-  box-shadow: 5px 5px 5px grey;
+  box-shadow: 5px 5px 5px black;
 }
 
 .note .handle {
@@ -18,10 +18,13 @@
   background-color: lightgrey;
 }
 
-.note .close {
+.note .handle-item {
   float: right;
-  width: 20px;
   height: 20px;
+}
+
+.note .close {
+  width: 20px;
 }
 
 .note .content {

@@ -5,9 +5,18 @@
       <span class="handle-content">
         click here to drag
       </span>
-      <button class='close'>
+      <button class='close handle-item'>
         X
       </button>
+      <div class="dropdown btn-group handle-item">
+        <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a href="#">Foo</a></li>
+          <li><a href="#">Bar</a></li>
+        </ul>
+      </div>
     </div>
     <div class="content" contenteditable="true">
       {{content}}

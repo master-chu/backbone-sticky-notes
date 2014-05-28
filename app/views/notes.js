@@ -1,11 +1,12 @@
-define(['backbone', 'handlebars', 'models/note', 'text!templates/notes.html', 'jquery-ui'], 
+define(['backbone', 'handlebars', 'models/note', 'text!templates/notes.html', 'jquery-ui', 'bootstrap'], 
   function(Backbone, Handlebars, NoteModel, template){
   'use strict';
 
   var NotesView = Backbone.View.extend({
 
     events: {
-      'click .close': 'deleteNote'
+      'click .close': 'deleteNote',
+      'blur .content': 'updateContent'
     },
 
     addNote: function(param){
@@ -18,6 +19,15 @@ define(['backbone', 'handlebars', 'models/note', 'text!templates/notes.html', 'j
 
       var noteModel = this.collection.at(index);
       this.collection.remove(noteModel);
+    },
+
+    updateContent: function(event){
+      var note = $(event.target).closest('.note'),
+        index = note.data('index'),
+        content = note.find('.content').text();
+
+      var noteModel = this.collection.at(index);
+      noteModel.set('content', content);
     },
 
     render: function(){

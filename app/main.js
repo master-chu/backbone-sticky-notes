@@ -8,7 +8,7 @@ requirejs.config({
     underscore: 'lib/underscore',
     backbone: 'lib/backbone',
     handlebars: 'lib/handlebars',
-    bootstrap: 'lib/bootstrap',
+    bootstrap: 'lib/bootstrap/bootstrap',
 
     collections: 'collections',
     models: 'models',
