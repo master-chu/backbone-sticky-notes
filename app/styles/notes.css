@@ -1,20 +1,28 @@
 #notes {
   border: 1px solid darkgrey;
+  min-width: 800px;
+  min-height: 600px;
 }
 
 .note {
-  position: relative;
+  position: absolute !important;
+  display: block;
   box-shadow: 5px 5px 5px grey;
 }
 
 .note .handle {
-  text-align: center;
   background-color: grey;
   cursor: move;
 }
 
 .note .handle:hover {
   background-color: lightgrey;
+}
+
+.note .close {
+  float: right;
+  width: 20px;
+  height: 20px;
 }
 
 .note .content {

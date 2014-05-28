@@ -5,29 +5,19 @@ define(['backbone', 'handlebars', 'models/note', 'text!templates/notes.html', 'j
   var NotesView = Backbone.View.extend({
 
     events: {
-      'mouseup .handle': 'handleReleaseHandler'
+      'click .close': 'deleteNote'
     },
 
-    handleReleaseHandler: function(event){
-      var handle = $(event.target),
-        parentNote = handle.closest('.note'),
-        newX = parentNote.offset().top,
-        newY = parentNote.offset().left;
-
-      // var oldX = parentNote.data('x'),
-      //   oldY = parentNote.data('y');
-
-      parentNote.data('x', newX);
-      parentNote.data('y', newY);
-      
-      // console.log("{" + oldX + ", " + oldY + "}");
-      
-      parentNote.effect('bounce', { distance: 4, times: 2}, 'fast');
-    },
-
-    newNote: function(param){
-      console.log(param);
+    addNote: function(param){
       this.collection.add(new NoteModel());
+    },
+
+    deleteNote: function(event){
+      var note = $(event.target).closest('.note'),
+        index = note.data('index');
+
+      var noteModel = this.collection.at(index);
+      this.collection.remove(noteModel);
     },
 
     render: function(){
@@ -46,11 +36,49 @@ define(['backbone', 'handlebars', 'models/note', 'text!templates/notes.html', 'j
       });
 
       $('.note').draggable({
-        containment: "#notes",
-        handle: '.handle'
+        containment: '#notes',
+        handle: '.handle',
+        stop: function(event, ui){
+          var note = $(event.target).closest('.note'),
+            index = note.data('index'),
+            noteModel = self.collection.at(index),
+            newX = note.offset().top,
+            newY = note.offset().left;
+
+          note.data('x', newX);
+          note.data('y', newY);
+          
+          // noteModel.set({
+          //   x: newX,
+          //   y: newY
+          // });
+          note.effect('bounce', { distance: 4, times: 2}, 'fast');
+        }
       });
 
-      $('.handle').hover()
+      $('.note').resizable({
+        containment: '#notes',
+        minWidth: 150,
+        minHeight: 150,
+        maxWidth: 500,
+        maxHeight: 500,
+        stop: function(event, ui){
+          var note = $(event.target),
+            index = note.data('index'),
+            noteModel = self.collection.at(index),
+            newWidth = ui.size.width,
+            newHeight = ui.size.height;
+
+          note.data('width', newWidth);
+          note.data('height', newHeight);
+          
+          // noteModel.set({
+          //   width: newWidth,
+          //   height: newHeight
+          // });
+        }
+      });
+
     },
 
     initializeNote: function(note){

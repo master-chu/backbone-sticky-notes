@@ -1,8 +1,13 @@
 <div>
 {{#each notes}}
-  <div class="note" data-x="{{x}}" data-y="{{y}}" data-width="{{width}}" data-height="{{height}}" data-color="{{color}}">
+  <div class="note" data-index="{{@index}}" data-x="{{x}}" data-y="{{y}}" data-width="{{width}}" data-height="{{height}}" data-color="{{color}}">
     <div class="handle">
-      click here to drag
+      <span class="handle-content">
+        click here to drag
+      </span>
+      <button class='close'>
+        X
+      </button>
     </div>
     <div class="content" contenteditable="true">
       {{content}}
