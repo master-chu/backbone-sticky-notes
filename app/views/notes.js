@@ -42,16 +42,21 @@ define(['backbone', 'handlebars', 'models/note', 'text!templates/notes.html', 'j
           var note = $(event.target).closest('.note'),
             index = note.data('index'),
             noteModel = self.collection.at(index),
-            newX = note.offset().top,
-            newY = note.offset().left;
+            newX = note.offset().left,
+            newY = note.offset().top,
+            parent = $('#notes'),
+            parentX = parent.offset().left,
+            parentY = parent.offset().top,
+            dataX = newX + parentX,
+            dataY = newY + parentY;
 
           note.data('x', newX);
           note.data('y', newY);
-          
-          // noteModel.set({
-          //   x: newX,
-          //   y: newY
-          // });
+
+          noteModel.set({
+             x: newX,
+             y: newY
+           });
           note.effect('bounce', { distance: 4, times: 2}, 'fast');
         }
       });
@@ -72,10 +77,10 @@ define(['backbone', 'handlebars', 'models/note', 'text!templates/notes.html', 'j
           note.data('width', newWidth);
           note.data('height', newHeight);
           
-          // noteModel.set({
-          //   width: newWidth,
-          //   height: newHeight
-          // });
+          noteModel.set({
+            width: newWidth,
+            height: newHeight
+          });
         }
       });
 
@@ -98,7 +103,7 @@ define(['backbone', 'handlebars', 'models/note', 'text!templates/notes.html', 'j
     setPosition: function(note){
       var x = note.data('x'),
         y = note.data('y');
-
+      
       note.offset({
         left: x,
         top: y
