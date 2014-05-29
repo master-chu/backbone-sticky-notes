@@ -28,3 +28,63 @@ requirejs.config({
 });
 
 require(['bt-app']);
+
+
+
+// Bootstrap in a few notes (bt-app.js)
+
+var note1 = new NoteModel({
+  x: 100,
+  y: 100,
+  width: 300,
+  height: 200,
+  color: 'crimson',
+  content: 'The first note'
+});
+var note2 = new NoteModel({
+  x: 500,
+  y: 100,
+  width: 200,
+  height: 300,
+  color: 'skyblue',
+  content: 'The second note'
+});
+
+notesCollection.add([
+  note1,
+  note2
+]);
+
+notesCollection.sync('create', note1, {success: function(){console.log('success')}});
+notesCollection.sync('create', note2, {success: function(){console.log('success')}});
+
+
+
+
+
+/*
+  All 3 of these do slightly different things:
+*/
+
+//1 -> triggers a destroy event
+noteModel.destroy({
+  success: function() {
+    console.log('destroyed model');
+  },
+  failure: function() {
+    console.log('failed to destroy model');
+  }
+})
+
+//2 -> doesn't destroy it
+this.collection.remove(noteModel);
+
+//3 -> deletes, but doesn't cause event. basically, manually calling stuff done in destroy()
+self.collection.sync('update', noteModel, {
+  success: function(){
+    console.log('saved position');
+  },
+  failure: function(){
+    console.log('failed to save position');
+  }
+});
