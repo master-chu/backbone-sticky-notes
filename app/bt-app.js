@@ -29,6 +29,7 @@ define(['views/toolbar', 'views/notes', 'models/note', 'collections/notes'],
       notesView.listenTo(toolbarView, 'newNote', notesView.addNote);
       notesView.listenTo(notesCollection, 'add', notesView.render);
       notesView.listenTo(notesCollection, 'remove', notesView.render);
+      //notesView.listenTo(notesCollection, 'change', notesView.render);
     }    
   }
   return btApp;

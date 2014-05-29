@@ -2,11 +2,14 @@ define(['backbone', 'handlebars', 'models/note', 'text!templates/notes.html', 'j
   function(Backbone, Handlebars, NoteModel, template) {
     'use strict';
 
+    var NoteColors = ['skyblue', 'crimson', 'chartreuse'];
+
     var NotesView = Backbone.View.extend({
 
       events: {
         'click .close': 'deleteNote',
-        'blur .content': 'updateContent'
+        'blur .content': 'updateContent',
+        'click .color': 'updateColor'
       },
 
       addNote: function(param) {
@@ -40,14 +43,43 @@ define(['backbone', 'handlebars', 'models/note', 'text!templates/notes.html', 'j
           content = note.find('.content').text();
 
         var noteModel = this.collection.at(index);
-        noteModel.set('content', content);
+        noteModel.save({
+          content: content
+        }, {
+          success: function() {
+            console.log('saved content');
+          },
+          failure: function() {
+            console.log('failed to save content');
+          }
+        });
+      },
+
+      updateColor: function(event) {
+        var note = $(event.target).closest('.note'),
+          index = note.data('index'),
+          color = $(event.target).data('color'),
+          noteModel = this.collection.at(index);
+
+        noteModel.save({
+          color: color
+        }, {
+          success: function() {
+            console.log('saved color');
+          },
+          failure: function() {
+            console.log('failed to save color');
+          }
+        });
       },
 
       render: function() {
+        console.log('render');
         var notes = this.collection.toJSON();
         var compiledTemplate = Handlebars.compile(template);
         this.$el.html(compiledTemplate({
-          notes: notes
+          notes: notes,
+          colors: NoteColors
         }));
 
         this.initializeNotes();
@@ -87,7 +119,8 @@ define(['backbone', 'handlebars', 'models/note', 'text!templates/notes.html', 'j
               },
               failure: function() {
                 console.log('failed to save position');
-              }
+              },
+              //silent: true
             });
           }
         });
@@ -117,7 +150,8 @@ define(['backbone', 'handlebars', 'models/note', 'text!templates/notes.html', 'j
               },
               failure: function() {
                 console.log('failed to save size');
-              }
+              },
+              //silent: true
             });
           }
         });
@@ -125,12 +159,12 @@ define(['backbone', 'handlebars', 'models/note', 'text!templates/notes.html', 'j
       },
 
       initializeNote: function(note) {
-        this.setSize(note);
-        this.setBackgroundColor(note);
-        this.setPosition(note);
+        this.initializeSize(note);
+        this.initializeColor(note);
+        this.initializePosition(note);
       },
 
-      setSize: function(note) {
+      initializeSize: function(note) {
         var width = note.data('width'),
           height = note.data('height');
 
@@ -138,7 +172,7 @@ define(['backbone', 'handlebars', 'models/note', 'text!templates/notes.html', 'j
         note.css('height', height + 'px');
       },
 
-      setPosition: function(note) {
+      initializePosition: function(note) {
         var x = note.data('x'),
           y = note.data('y');
 
@@ -148,7 +182,7 @@ define(['backbone', 'handlebars', 'models/note', 'text!templates/notes.html', 'j
         });
       },
 
-      setBackgroundColor: function(note) {
+      initializeColor: function(note) {
         var color = note.data('color');
         note.css('background-color', color);
       }
