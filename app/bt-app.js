@@ -50,10 +50,10 @@ define(['views/toolbar', 'views/notes', 'models/note', 'collections/notes'],
       togglePresentationMode: function(toolbarView, notesView) {
         if(this.inPresentationMode) {
           toolbarView.exitPresentationMode();
-          // notesView.exitPresentationMode();
+          notesView.exitPresentationMode();
         } else {
           toolbarView.enterPresentationMode();
-          // notesView.enterPresentationMode();
+          notesView.enterPresentationMode();
         }
 
         this.inPresentationMode = !this.inPresentationMode;

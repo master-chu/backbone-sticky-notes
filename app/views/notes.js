@@ -7,6 +7,7 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
       events: {
         'click .close': 'deleteNote',
         'mousedown .handle': 'blurContent',
+        'mousedown .ui-resizable-handle': 'blurContent',
         'blur .content': 'updateContent',
         'click .color': 'updateColor'
       },
@@ -185,6 +186,16 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
       initializeColor: function(note) {
         var color = note.data('color');
         note.css('background-color', color);
+      },
+
+      enterPresentationMode: function(){
+        $('.handle').hide();
+        $('.note').resizable("disable");
+      },
+
+      exitPresentationMode: function() {
+        $('.handle').show();
+        $('.note').resizable("enable");
       }
     });
 
