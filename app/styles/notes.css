@@ -28,5 +28,12 @@
 }
 
 .note .content {
-  
+  padding: 2px 6px;
+}
+
+
+/* Bootstrap overrides */
+a.btn.dropdown-toggle {
+  padding: 0px;
+  color: black;
 }

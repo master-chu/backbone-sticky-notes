@@ -6,9 +6,9 @@ define(function(require){
     defaults: {
       x: 100,
       y: 100,
-      width: 200,
+      width: 300,
       height: 200,
-      color: 'blue',
+      color: 'aliceblue',
       content: 'default content'
     }
   });

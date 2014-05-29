@@ -14,6 +14,14 @@ define(['backbone', 'handlebars', 'text!templates/toolbar.html'],
     render: function(){
       var compiledTemplate = Handlebars.compile(template);
       this.$el.html(compiledTemplate());
+    },
+
+    enterPresentationMode: function(){
+      this.$el.hide();
+    },
+
+    exitPresentationMode: function(){
+      this.$el.show();
     }
   });
   return ToolbarView;

@@ -1,21 +1,18 @@
-define(['backbone', 'handlebars', 'models/note', 'text!templates/notes.html', 'jquery-ui', 'bootstrap'],
-  function(Backbone, Handlebars, NoteModel, template) {
+define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!templates/notes.html', 'jquery-ui', 'bootstrap'],
+  function(Backbone, Handlebars, NoteModel, NoteColors, template) {
     'use strict';
-
-    var NoteColors = ['skyblue', 'crimson', 'chartreuse'];
 
     var NotesView = Backbone.View.extend({
 
       events: {
         'click .close': 'deleteNote',
+        'mousedown .handle': 'blurContent',
         'blur .content': 'updateContent',
         'click .color': 'updateColor'
       },
 
       addNote: function(param) {
-        this.collection.create({
-          color: 'aliceblue'
-        }, {
+        this.collection.create({/* see model defaults */}, {
           success: function() {
             console.log('created new note');
           }
@@ -55,6 +52,11 @@ define(['backbone', 'handlebars', 'models/note', 'text!templates/notes.html', 'j
         });
       },
 
+      blurContent: function(event) {
+        $(event.target).closest('.note').
+          find('.content').blur();
+      },
+
       updateColor: function(event) {
         var note = $(event.target).closest('.note'),
           index = note.data('index'),
@@ -65,6 +67,7 @@ define(['backbone', 'handlebars', 'models/note', 'text!templates/notes.html', 'j
           color: color
         }, {
           success: function() {
+            noteModel.trigger('updateColor');
             console.log('saved color');
           },
           failure: function() {
@@ -120,7 +123,6 @@ define(['backbone', 'handlebars', 'models/note', 'text!templates/notes.html', 'j
               failure: function() {
                 console.log('failed to save position');
               },
-              //silent: true
             });
           }
         });
@@ -151,11 +153,9 @@ define(['backbone', 'handlebars', 'models/note', 'text!templates/notes.html', 'j
               failure: function() {
                 console.log('failed to save size');
               },
-              //silent: true
             });
           }
         });
-
       },
 
       initializeNote: function(note) {
