@@ -1,3 +1,23 @@
+Possible options for adding/sorting:
+
+  1.) No matter how/where the person adds a model, the collection re-sorts based on the sort index. This means we can use add, unshift, push, or add(at), and it will be ignored. Instead, it will add it as usual, but then re-sort. For new notes w/ -1 sort index, they are assigned an index, then it sorts.
+
+    Client impact: Seperate add operations lose meaning. Performance drop.
+
+  2.) Only use add(sortIndex) for models with sort indeces, thus never necessitating a sort except on initialization. For new models, add will add to the end, and sort index is still assigned, same as option 1. This means we can use add, unshift, push etc, but their state will be lost on reload. Don't need to sort at all (except on init), because we can just make sortIndex mimic the collection index, since that's always correct until page reload. Having this attribute simply allows preservation. Maybe that's what I should do.
+
+    Client impact: Must make conscious effort to only use add(at: sortIndex). Other operation states are lost on reload. Performance increase.
+
+  Considerations:
+    Collection index is determined by when they were created, more or less. We need a seperate attribute called sortIndex to preserve the user-created state of the collection. We can re-order the collection in a single session and the collection indeces change, and can re-render all we want, but they are not preserved on reload. Sync does not save the order of the collection, only the attributes of the models.
+
+    Therefore, sortIndex is an additional property that can be preserved at all times. To the client, it will look like the sort index always matches the collection index. However, what's happening is that the collection index is being made to realign with the sort index after add/remove operations.
+
+    In both options, we need to shift up or down when we insert, so the sort index matches the collection index.
+
+
+
+
 // the array-less define call makes it so you can require stuff.
 // if you put in an array and put require as a dep, it get's screwy.
 define(function(require){
@@ -57,10 +77,6 @@ notesCollection.add([
 
 notesCollection.sync('create', note1, {success: function(){console.log('success')}});
 notesCollection.sync('create', note2, {success: function(){console.log('success')}});
-
-
-
-
 
 /*
   All 3 of these do slightly different things:

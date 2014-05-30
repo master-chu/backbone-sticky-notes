@@ -9,7 +9,8 @@ define(function(require){
       width: 300,
       height: 200,
       color: 'aliceblue',
-      content: 'default content'
+      content: 'default content',
+      sortIndex: -1
     }
   });
 

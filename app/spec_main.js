@@ -2,7 +2,7 @@
 require(['paths'], function(paths) {
   requirejs.config(paths);
 
-  var specs = ['spec/example_spec'];
+  var specs = ['spec/notes_spec'];
 
   require(['boot'], function() {
     require(specs, function(){
