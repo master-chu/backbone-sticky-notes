@@ -8,6 +8,7 @@
       <button class='close handle-item'>
         x
       </button>
+      <button class="bring-to-front handle-item"> &#x25B2; </button>
       <div class="dropdown btn-group handle-item">
         <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
           Colors <span class="caret"></span>
@@ -25,5 +26,9 @@
       {{content}}
     </div>
   </div>
+{{/each}}
+
+{{#each notes}}
+  {{color}}
 {{/each}}
 </div>

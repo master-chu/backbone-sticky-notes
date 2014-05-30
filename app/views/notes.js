@@ -9,72 +9,10 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
         'mousedown .handle': 'blurContent',
         'mousedown .ui-resizable-handle': 'blurContent',
         'blur .content': 'updateContent',
-        'click .color': 'updateColor'
-      },
-
-      addNote: function(param) {
-        this.collection.create({/* see model defaults */}, {
-          success: function() {
-            console.log('created new note');
-          }
-        });
-      },
-
-      deleteNote: function(event) {
-        var note = $(event.target).closest('.note'),
-          index = note.data('index');
-
-        var noteModel = this.collection.at(index);
-        noteModel.destroy({
-          success: function() {
-            console.log('destroyed model');
-          },
-          failure: function() {
-            console.log('failed to destroy model');
-          }
-        })
-      },
-
-      updateContent: function(event) {
-        var note = $(event.target).closest('.note'),
-          index = note.data('index'),
-          content = note.find('.content').text();
-
-        var noteModel = this.collection.at(index);
-        noteModel.save({
-          content: content
-        }, {
-          success: function() {
-            console.log('saved content');
-          },
-          failure: function() {
-            console.log('failed to save content');
-          }
-        });
-      },
-
-      blurContent: function(event) {
-        $(event.target).closest('.note').
-          find('.content').blur();
-      },
-
-      updateColor: function(event) {
-        var note = $(event.target).closest('.note'),
-          index = note.data('index'),
-          color = $(event.target).data('color'),
-          noteModel = this.collection.at(index);
-
-        noteModel.save({
-          color: color
-        }, {
-          success: function() {
-            noteModel.trigger('updateColor');
-            console.log('saved color');
-          },
-          failure: function() {
-            console.log('failed to save color');
-          }
-        });
+        'click .color': 'updateColor',
+        'click .bring-to-front': 'bringToFront',
+        'mouseenter .note': 'enableEdit',
+        'mouseleave .note': 'disableEdit'
       },
 
       render: function() {
@@ -90,73 +28,33 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
       },
 
       initializeNotes: function() {
-        var self = this;
+        var self = this,
+          notes = $('.note');
 
-        $('.note').each(function(index, value) {
+        notes.each(function(index, value) {
           self.initializeNote($(value));
         });
 
-        $('.note').draggable({
+        notes.draggable({
           containment: '#notes',
           handle: '.handle',
           stop: function(event, ui) {
-            var note = $(event.target).closest('.note'),
-              index = note.data('index'),
-              noteModel = self.collection.at(index),
-              newX = note.offset().left,
-              newY = note.offset().top;
-
-            note.data('x', newX);
-            note.data('y', newY);
-
-            note.effect('bounce', {
-              distance: 4,
-              times: 2
-            }, 'fast');
-
-            noteModel.save({
-              x: newX,
-              y: newY
-            }, {
-              success: function() {
-                console.log('saved position');
-              },
-              failure: function() {
-                console.log('failed to save position');
-              },
-            });
+            self.updatePosition(event, ui);
           }
         });
 
-        $('.note').resizable({
+        notes.resizable({
           containment: '#notes',
           minWidth: 150,
           minHeight: 150,
           maxWidth: 500,
           maxHeight: 500,
           stop: function(event, ui) {
-            var note = $(event.target),
-              index = note.data('index'),
-              noteModel = self.collection.at(index),
-              newWidth = ui.size.width,
-              newHeight = ui.size.height;
-
-            note.data('width', newWidth);
-            note.data('height', newHeight);
-
-            noteModel.save({
-              width: newWidth,
-              height: newHeight
-            }, {
-              success: function() {
-                console.log('saved size');
-              },
-              failure: function() {
-                console.log('failed to save size');
-              },
-            });
+            self.updateSize(event, ui);
           }
         });
+
+        notes.resizable('disable');
       },
 
       initializeNote: function(note) {
@@ -188,15 +86,204 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
         note.css('background-color', color);
       },
 
-      enterPresentationMode: function(){
+      bringToFront: function(event) {
+        var note = $(event.target).closest('.note'),
+          index = note.data('index'),
+          noteModel = this.collection.at(index);
+
+        this.collection.remove(noteModel);
+        this.collection.add(noteModel);
+
+        console.log('bring to front');
+
+        // collection sync doesn't do anything because
+        // they don't have sort order; they are resorted by the cID (or similar)
+        // every time it fetches. Therefore we'd need a seperate index
+        // (not @index, maybe sortIndex?) to replace data-index and pre-sort
+        // the collection by that on fetch.
+
+        // However...
+        // Even if that all worked, bringToFront is ugly because it re-renders
+        // twice in order to match that state, which "lets go" of whatever mouse 
+        // stuff you're doing, and the click event (may) block any other click events
+        // from occurring. So even if we manually call 'bringToFront' when various
+        // parts of a note are clicked, it would still lose the mouse context from before.
+        // E.g., when you grab the handle, it would render and you'd let go, like when
+        // John Locke fell down the well during the time jump.
+
+        // But if we ignored the handle and just said click/mousedown on ever
+        // other part of the note: we could bring this model to the end of the list,
+        // shift everything with higher sortIndex down by 1, set its sortIndex
+        // to collection.models.length - 1, and sync with the datastore.
+        // For adding notes, just assign it new length - 1.
+        // For removing notes, do exactly what you did for bring to front, except don't
+        // add the removed element to the front. So if you can get add + remove working,
+        // bring to front just slightly modifies remove. BUT you might just want a
+        // function that shifts a note up by one space, so who knows.
+      },
+
+      updateSize: function(event, ui) {
+        var note = $(event.target),
+          index = note.data('index'),
+          noteModel = this.collection.at(index),
+          newWidth = ui.size.width,
+          newHeight = ui.size.height;
+
+        note.data('width', newWidth);
+        note.data('height', newHeight);
+
+        noteModel.save({
+          width: newWidth,
+          height: newHeight
+        }, {
+          success: function() {
+            console.log('saved size');
+          },
+          failure: function() {
+            console.log('failed to save size');
+          },
+        });
+      },
+
+      updateColor: function(event) {
+        var note = $(event.target).closest('.note'),
+          index = note.data('index'),
+          color = $(event.target).data('color'),
+          noteModel = this.collection.at(index);
+
+        noteModel.save({
+          color: color
+        }, {
+          success: function() {
+            noteModel.trigger('updateColor');
+            console.log('saved color');
+          },
+          failure: function() {
+            console.log('failed to save color');
+          }
+        });
+      },
+
+      updatePosition: function(event, ui) {
+        var note = $(event.target).closest('.note'),
+          index = note.data('index'),
+          noteModel = this.collection.at(index),
+          newX = note.offset().left,
+          newY = note.offset().top;
+
+        note.data('x', newX);
+        note.data('y', newY);
+
+        note.effect('bounce', {
+          distance: 4,
+          times: 2
+        }, 'fast');
+
+        noteModel.save({
+          x: newX,
+          y: newY
+        }, {
+          success: function() {
+            console.log('saved position');
+          },
+          failure: function() {
+            console.log('failed to save position');
+          },
+        });
+      },
+
+      updateContent: function(event) {
+        var note = $(event.target).closest('.note'),
+          index = note.data('index'),
+          newContent = note.find('.content').text();
+
+        var noteModel = this.collection.at(index);
+        if (noteModel.get('content') !== newContent) {
+          noteModel.save({
+            content: newContent
+          }, {
+            success: function() {
+              console.log('saved content');
+            },
+            failure: function() {
+              console.log('failed to save content');
+            }
+          });
+        }
+      },
+
+      enterPresentationMode: function() {
+        var handleHeight = $('.handle').height(),
+          notes = $('.note'),
+          content = $('.content');
+
         $('.handle').hide();
-        $('.note').resizable("disable");
+        notes.resizable('disable');
+        content.attr('contenteditable', 'false');
+
+        notes.each(function(index, value) {
+          $(value).height(function(index, noteHeight) {
+            return noteHeight - handleHeight;
+          });
+        });
       },
 
       exitPresentationMode: function() {
+        var handleHeight = $('.handle').height(),
+          notes = $('.note'),
+          content = $('.content');
+
         $('.handle').show();
-        $('.note').resizable("enable");
-      }
+        notes.resizable('enable');
+        content.attr('contenteditable', 'true');
+
+        notes.each(function(index, value) {
+          $(value).height(function(index, noteHeight) {
+            return noteHeight + handleHeight;
+          });
+        });
+      },
+
+      addNote: function(param) {
+        this.collection.create({ /* see model defaults */ }, {
+          success: function() {
+            console.log('created new note');
+          }
+        });
+      },
+
+      deleteNote: function(event) {
+        var note = $(event.target).closest('.note'),
+          index = note.data('index');
+
+        var noteModel = this.collection.at(index);
+        noteModel.destroy({
+          success: function() {
+            console.log('destroyed model');
+          },
+          failure: function() {
+            console.log('failed to destroy model');
+          }
+        })
+      },
+
+      blurContent: function(event) {
+        var note = $(event.target).closest('.note'),
+          content = note.find('.content');
+
+        content.blur();
+      },
+
+      enableEdit: function(event) {
+        var note = $(event.target).closest('.note');
+        note.resizable('enable');
+      },
+
+      disableEdit: function(event) {
+        var note = $(event.target).closest('.note');
+        note.resizable('disable');
+      },
+
     });
 
     return NotesView;

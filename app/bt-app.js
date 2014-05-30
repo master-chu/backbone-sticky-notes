@@ -39,9 +39,9 @@ define(['views/toolbar', 'views/notes', 'models/note', 'collections/notes'],
         $('body').keydown(function(event) {
           var focusedOnUserInput = $(document.activeElement).hasClass('content'),
             pressedKey = event.keyCode,
-            f = 70;
+            p = 80;
 
-          if (!focusedOnUserInput && pressedKey == f) {
+          if (!focusedOnUserInput && pressedKey == p) {
             self.togglePresentationMode(toolbarView, notesView);
           }
         });

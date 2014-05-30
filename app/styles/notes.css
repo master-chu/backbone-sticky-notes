@@ -37,3 +37,7 @@ a.btn.dropdown-toggle {
   padding: 0px;
   color: black;
 }
+
+.note.ui-state-disabled {
+  opacity: 1;
+}
