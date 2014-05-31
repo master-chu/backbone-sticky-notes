@@ -6,6 +6,7 @@ define(['views/toolbar', 'views/notes', 'models/note', 'collections/notes'],
       initialize: function() {
 
         var notesCollection = new NotesCollection();
+        console.log('about to fetch...');
         notesCollection.fetch({
           success: function(collection, response, options) {
             console.log('fetch success');

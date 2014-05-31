@@ -7,13 +7,28 @@ define(['backbone', 'models/note', 'localstorage'], function(Backbone, NoteModel
     comparator: 'sortIndex',
 
     initialize: function() {
+
       this.on('add', function(noteModel, notesCollection, options) {
         if (noteModel.get('sortIndex') === -1) {
-          var newEndOfList = notesCollection.length - 1
+          var newEndOfList = notesCollection.length - 1;
           noteModel.set('sortIndex', newEndOfList);
+          notesCollection.sort();
+        } else {
+          notesCollection.updateSortIndices();
         }
-        // notesCollection.sort();
       });
+
+      this.on('remove', function(noteModel, notesCollection, options) {
+        notesCollection.updateSortIndices();
+      });
+    },
+
+    updateSortIndices: function() {
+      this.each(function(model, index, someThirdThingUnknown) {
+        model.set('sortIndex', index);
+      });
+
+      console.log('updated sort indices');
     }
   });
 

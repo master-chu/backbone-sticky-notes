@@ -38,6 +38,12 @@ define(['models/note', 'collections/notes'], function(NoteModel, NotesCollection
         expect(notesCollection.at(0).get('sortIndex')).toBe(0);
       });
 
+      it('should set the sort index to be the end of the list', function() {
+        var newNoteModel = new NoteModel();
+        notesCollection.add(newNoteModel);
+        expect(newNoteModel.get('sortIndex')).toBe(1);
+      });
+
       it('should add to the end of a 1 element list', function() {
         notesCollection.add(new NoteModel());
         expect(notesCollection.at(0).get('sortIndex')).toBe(0);
@@ -45,21 +51,37 @@ define(['models/note', 'collections/notes'], function(NoteModel, NotesCollection
       });
     });
 
-    describe('Inserting/adding notes with existing sortIndeces', function(){
+    describe('Inserting/adding notes with existing sortIndeces into a sorted list', function() {
       beforeEach(function() {
-        emptyNotesCollection = new NotesCollection();
-
         notesCollection = new NotesCollection([{
-          sortIndex: 2
-        }, {
           sortIndex: 0
         }, {
           sortIndex: 1
+        }, {
+          sortIndex: 2
         }]);
       });
 
-      it('should add to an empty list without changing the sort index', function(){
+      it('should update the sort index for all models on insert', function() {
+        var noteModel = new NoteModel({
+          sortIndex: 1
+        });
+        notesCollection.add(noteModel, {
+          at: noteModel.get('sortIndex')
+        });
 
+        expect(notesCollection.at(0).get('sortIndex')).toBe(0);
+        expect(notesCollection.at(1).get('sortIndex')).toBe(1);
+        expect(notesCollection.at(2).get('sortIndex')).toBe(2);
+        expect(notesCollection.at(3).get('sortIndex')).toBe(3);
+      });
+
+      it('should update the sort index for all models on removal', function() {
+        
+        notesCollection.remove(notesCollection.at(1));
+
+        expect(notesCollection.at(0).get('sortIndex')).toBe(0);
+        expect(notesCollection.at(1).get('sortIndex')).toBe(1);
       });
     });
 
@@ -84,12 +106,7 @@ define(['models/note', 'collections/notes'], function(NoteModel, NotesCollection
         expect(notesCollection.at(2).get('sortIndex')).toBe(2);
       });
 
-      it('should sort when a model is added with a specified sort index', function() {
-        notesCollection.unshift(new NoteModel({sortIndex: 3}));
-        expect(notesCollection.at(3).get('sortIndex')).toBe(3);
-      });
-
     });
-  
+
   });
 });

@@ -87,39 +87,26 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
       },
 
       bringToFront: function(event) {
+        console.log('bring to front');
+
         var note = $(event.target).closest('.note'),
           index = note.data('index'),
           noteModel = this.collection.at(index);
 
         this.collection.remove(noteModel);
-        this.collection.add(noteModel);
+        this.collection.add(noteModel, {
+          at: this.collection.length
+        });
 
-        console.log('bring to front');
-
-        // collection sync doesn't do anything because
-        // they don't have sort order; they are resorted by the cID (or similar)
-        // every time it fetches. Therefore we'd need a seperate index
-        // (not @index, maybe sortIndex?) to replace data-index and pre-sort
-        // the collection by that on fetch.
-
-        // However...
-        // Even if that all worked, bringToFront is ugly because it re-renders
-        // twice in order to match that state, which "lets go" of whatever mouse 
-        // stuff you're doing, and the click event (may) block any other click events
-        // from occurring. So even if we manually call 'bringToFront' when various
-        // parts of a note are clicked, it would still lose the mouse context from before.
-        // E.g., when you grab the handle, it would render and you'd let go, like when
-        // John Locke fell down the well during the time jump.
-
-        // But if we ignored the handle and just said click/mousedown on ever
-        // other part of the note: we could bring this model to the end of the list,
-        // shift everything with higher sortIndex down by 1, set its sortIndex
-        // to collection.models.length - 1, and sync with the datastore.
-        // For adding notes, just assign it new length - 1.
-        // For removing notes, do exactly what you did for bring to front, except don't
-        // add the removed element to the front. So if you can get add + remove working,
-        // bring to front just slightly modifies remove. BUT you might just want a
-        // function that shifts a note up by one space, so who knows.
+        this.collection.each(function(model) {
+          if (model.changedAttributes()) {
+            model.save({}, {
+              success: function() {
+                console.log('moved to front');
+              }
+            });
+          }
+        });
       },
 
       updateSize: function(event, ui) {

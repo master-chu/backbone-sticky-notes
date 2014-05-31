@@ -1,3 +1,34 @@
+// SATURDAY:
+// A fetch causes an add event for each note, which means their indices are set before checking sort index.
+// Instead we need to have a custom event called 'changedOrder' that fires updateIndices
+// and then manually sort() after fetch completes.
+
+
+// collection sync doesn't do anything because
+// they don't have sort order; they are resorted by the cID (or similar)
+// every time it fetches. Therefore we'd need a seperate index
+// (not @index, maybe sortIndex?) to replace data-index and pre-sort
+// the collection by that on fetch.
+
+// However...
+// Even if that all worked, bringToFront is ugly because it re-renders
+// twice in order to match that state, which "lets go" of whatever mouse 
+// stuff you're doing, and the click event (may) block any other click events
+// from occurring. So even if we manually call 'bringToFront' when various
+// parts of a note are clicked, it would still lose the mouse context from before.
+// E.g., when you grab the handle, it would render and you'd let go, like when
+// John Locke fell down the well during the time jump.
+
+// But if we ignored the handle and just said click/mousedown on ever
+// other part of the note: we could bring this model to the end of the list,
+// shift everything with higher sortIndex down by 1, set its sortIndex
+// to collection.models.length - 1, and sync with the datastore.
+// For adding notes, just assign it new length - 1.
+// For removing notes, do exactly what you did for bring to front, except don't
+// add the removed element to the front. So if you can get add + remove working,
+// bring to front just slightly modifies remove. BUT you might just want a
+// function that shifts a note up by one space, so who knows.
+
 Possible options for adding/sorting:
 
   1.) No matter how/where the person adds a model, the collection re-sorts based on the sort index. This means we can use add, unshift, push, or add(at), and it will be ignored. Instead, it will add it as usual, but then re-sort. For new notes w/ -1 sort index, they are assigned an index, then it sorts.
@@ -14,6 +45,7 @@ Possible options for adding/sorting:
     Therefore, sortIndex is an additional property that can be preserved at all times. To the client, it will look like the sort index always matches the collection index. However, what's happening is that the collection index is being made to realign with the sort index after add/remove operations.
 
     In both options, we need to shift up or down when we insert, so the sort index matches the collection index.
+    To synchronize: on add/delete, set the sort index to the model's current position in the array. That way, the mechanism is the same for add and remove.
 
 
 
