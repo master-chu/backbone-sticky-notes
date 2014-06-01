@@ -10,9 +10,11 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
         'mousedown .ui-resizable-handle': 'blurContent',
         'blur .content': 'updateContent',
         'click .color': 'updateColor',
-        'click .bring-to-front': 'bringToFront',
+        // 'mousedown .bring-to-front': 'bringToFront',
+        // 'mouseup .bring-to-front': 'render',
         'mouseenter .note': 'enableEdit',
-        'mouseleave .note': 'disableEdit'
+        'mouseleave .note': 'disableEdit',
+        'mousedown .note': 'pretendToBringToFront',
       },
 
       render: function() {
@@ -23,7 +25,8 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
           notes: notes,
           colors: NoteColors
         }));
-
+        
+        this.zIndex = 0;
         this.initializeNotes();
       },
 
@@ -86,12 +89,22 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
         note.css('background-color', color);
       },
 
+      pretendToBringToFront: function(event){
+        var note = $(event.target).closest('.note'),
+          index = note.data('id'),
+          noteModel = this.collection.get(index);
+
+        this.zIndex += 1;
+        note.css('z-index', this.zIndex);
+        console.log('z-index: ' + this.zIndex);
+      },
+
       bringToFront: function(event) {
         console.log('bring to front');
 
         var note = $(event.target).closest('.note'),
-          index = note.data('index'),
-          noteModel = this.collection.at(index);
+          index = note.data('id'),
+          noteModel = this.collection.get(index);
 
         this.collection.remove(noteModel);
         this.collection.add(noteModel, {
@@ -103,8 +116,8 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
 
       updateSize: function(event, ui) {
         var note = $(event.target),
-          index = note.data('index'),
-          noteModel = this.collection.at(index),
+          index = note.data('id'),
+          noteModel = this.collection.get(index),
           newWidth = ui.size.width,
           newHeight = ui.size.height;
 
@@ -122,33 +135,37 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
             console.log('failed to save size');
           },
         });
+        this.bringToFront(event);
       },
 
       updateColor: function(event) {
         var note = $(event.target).closest('.note'),
-          index = note.data('index'),
+          index = note.data('id'),
           color = $(event.target).data('color'),
-          noteModel = this.collection.at(index);
+          noteModel = this.collection.get(index),
+          self = this;
 
         noteModel.save({
           color: color
         }, {
           success: function() {
-            noteModel.trigger('updateColor');
             console.log('saved color');
           },
           failure: function() {
             console.log('failed to save color');
           }
         });
+        this.bringToFront(event);
+        this.render();
       },
 
       updatePosition: function(event, ui) {
         var note = $(event.target).closest('.note'),
-          index = note.data('index'),
-          noteModel = this.collection.at(index),
+          index = note.data('id'),
+          noteModel = this.collection.get(index),
           newX = note.offset().left,
-          newY = note.offset().top;
+          newY = note.offset().top,
+          self = this;
 
         note.data('x', newX);
         note.data('y', newY);
@@ -156,7 +173,9 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
         note.effect('bounce', {
           distance: 4,
           times: 2
-        }, 'fast');
+        }, 'fast', function(){
+
+        });
 
         noteModel.save({
           x: newX,
@@ -169,14 +188,15 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
             console.log('failed to save position');
           },
         });
+        this.bringToFront(event);
       },
 
       updateContent: function(event) {
         var note = $(event.target).closest('.note'),
-          index = note.data('index'),
+          index = note.data('id'),
           newContent = note.find('.content').text();
 
-        var noteModel = this.collection.at(index);
+        var noteModel = this.collection.get(index);
         if (noteModel.get('content') !== newContent) {
           noteModel.save({
             content: newContent
@@ -189,6 +209,7 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
             }
           });
         }
+        this.bringToFront(event);
       },
 
       enterPresentationMode: function() {
@@ -224,18 +245,22 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
       },
 
       addNote: function(param) {
-        this.collection.create({ /* see model defaults */ }, {
+        var self = this;
+        self.collection.create({ /* see model defaults */ }, {
           success: function() {
+            self.render();
             console.log('created new note');
           }
         });
+
       },
 
       deleteNote: function(event) {
         var note = $(event.target).closest('.note'),
-          index = note.data('index');
+          index = note.data('id'),
+          self = this;
 
-        var noteModel = this.collection.at(index);
+        var noteModel = this.collection.get(index);
         noteModel.destroy({
           success: function() {
             console.log('destroyed model');
@@ -244,6 +269,7 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
             console.log('failed to destroy model');
           }
         });
+        self.render();
       },
 
       blurContent: function(event) {

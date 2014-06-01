@@ -1,3 +1,33 @@
+Other features to do:
+  - duplicate note
+
+// Bringing to front
+Context:
+  Binding a mousedown event to .note does not interfere with any other events of sub elements.
+Problem:
+  Bring to front works by re-arranging the list, then rendering. However, a re-render will effectively cancel any in-flight event callbacks. This is especially apparent for drag, because it will let go of the note after render.
+Possible solution:
+  Either:
+    Render and then try to figure out the state of the actions and recreate them
+  Or:
+    Don't actually re-render until everything else is done, and use z-index tricks to get it up top. The hard part is figuring out when to actually render, if at all. Maybe we should just stack z-indexes based on sort index, then preserve that state to the datastore.
+
+Considerations:
+  Bringing to front without rendering, then proceeding as usual doesn't work, because the original event.target is pointing at the wrong model once the rearranging occurs.
+
+  In all cases, on mousedown we will artificially bring to front using z-index. Therefore there are three steps:
+      -fudge z-index
+      -bringToFront (save changed order to ds)
+      -render
+
+  Z-index happens immediately. Render never matters since z-index will persist until re-render, so that doesn't have to ever happen, if need be. So the only step that matters is bringToFront because it will betray the original index of the event.target. So for all cases, wait until the last possible moment, wait for all changes and animations to occur, and then bringToFront. It may be the case that bringToFront can actually trigger a render, since everything else should have happened already
+
+  Since we don't render after bring to front, the element's data-index field is never syncronized, even though the underlying collection's indices have changed. So maybe use cID instead, so that that never falls out of sync.
+
+
+
+
+
 // SATURDAY:
 // A fetch causes an add event for each note, which means their indices are set before checking sort index.
 // Instead we need to have a custom event called 'changedOrder' that fires updateIndices
