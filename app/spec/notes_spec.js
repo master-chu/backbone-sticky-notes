@@ -18,6 +18,10 @@ define(['models/note', 'collections/notes'], function(NoteModel, NotesCollection
 
     var notesCollection;
 
+    afterEach(function() {
+      notesCollection.destroyAllModels(true);
+    });
+
     it('should exist and be empty by default', function() {
       notesCollection = new NotesCollection();
       expect(notesCollection.length).toBe(0);
@@ -28,6 +32,10 @@ define(['models/note', 'collections/notes'], function(NoteModel, NotesCollection
         notesCollection = new NotesCollection();
         var noteModel = new NoteModel();
         notesCollection.add(noteModel);
+      });
+
+      afterEach(function() {
+        notesCollection.destroyAllModels(true);
       });
 
       it('should add the first element', function() {
@@ -51,24 +59,57 @@ define(['models/note', 'collections/notes'], function(NoteModel, NotesCollection
       });
     });
 
-    describe('Inserting/adding notes with existing sortIndeces into a sorted list', function() {
+    describe('Inserting notes with existing sortIndices into an empty list', function() {
+      beforeEach(function() {
+        notesCollection = new NotesCollection();
+      });
+
+      afterEach(function() {
+        notesCollection.destroyAllModels(true);
+      });
+
+      it('should preserve the sort index even when empty', function() {
+        var noteModel = new NoteModel({
+          sortIndex: 3
+        });
+        notesCollection.add(noteModel);
+        expect(notesCollection.at(0).get('sortIndex')).toBe(3);
+      });
+    });
+
+    describe('Inserting/adding notes with existing sortIndices into a sorted list', function() {
       beforeEach(function() {
         notesCollection = new NotesCollection([{
-          sortIndex: 0
+          sortIndex: 0,
+          color: 'red'
         }, {
-          sortIndex: 1
+          sortIndex: 1,
+          color: 'blue'
         }, {
-          sortIndex: 2
+          sortIndex: 2,
+          color: 'green'
         }]);
       });
 
-      it('should update the sort index for all models on insert', function() {
+      afterEach(function() {
+        notesCollection.destroyAllModels(true);
+      });
+
+      it('should allow for a manual call to updateSortIndices', function() {
         var noteModel = new NoteModel({
-          sortIndex: 1
+          sortIndex: 1,
+          color: 'pink'
         });
         notesCollection.add(noteModel, {
           at: noteModel.get('sortIndex')
         });
+
+        notesCollection.updateSortIndices();
+
+        expect(notesCollection.at(0).get('color')).toBe('red');
+        expect(notesCollection.at(1).get('color')).toBe('pink');
+        expect(notesCollection.at(2).get('color')).toBe('blue');
+        expect(notesCollection.at(3).get('color')).toBe('green');
 
         expect(notesCollection.at(0).get('sortIndex')).toBe(0);
         expect(notesCollection.at(1).get('sortIndex')).toBe(1);
@@ -77,8 +118,10 @@ define(['models/note', 'collections/notes'], function(NoteModel, NotesCollection
       });
 
       it('should update the sort index for all models on removal', function() {
-        
         notesCollection.remove(notesCollection.at(1));
+
+        expect(notesCollection.at(0).get('color')).toBe('red');
+        expect(notesCollection.at(1).get('color')).toBe('green');
 
         expect(notesCollection.at(0).get('sortIndex')).toBe(0);
         expect(notesCollection.at(1).get('sortIndex')).toBe(1);
@@ -94,6 +137,10 @@ define(['models/note', 'collections/notes'], function(NoteModel, NotesCollection
         }, {
           sortIndex: 1
         }]);
+      });
+
+      afterEach(function() {
+        notesCollection.destroyAllModels(true);
       });
 
       it('should compare using sortIndex', function() {

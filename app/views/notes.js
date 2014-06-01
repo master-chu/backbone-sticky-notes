@@ -98,15 +98,7 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
           at: this.collection.length
         });
 
-        this.collection.each(function(model) {
-          if (model.changedAttributes()) {
-            model.save({}, {
-              success: function() {
-                console.log('moved to front');
-              }
-            });
-          }
-        });
+        noteModel.trigger('rearrange', noteModel, this.collection);
       },
 
       updateSize: function(event, ui) {
@@ -251,7 +243,7 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
           failure: function() {
             console.log('failed to destroy model');
           }
-        })
+        });
       },
 
       blurContent: function(event) {
