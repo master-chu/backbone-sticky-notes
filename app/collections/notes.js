@@ -7,18 +7,17 @@ define(['backbone', 'models/note', 'localstorage'], function(Backbone, NoteModel
     comparator: 'sortIndex',
 
     initialize: function() {
-
-      this.on('add', function(noteModel, notesCollection, options) {
-        notesCollection.checkIfNewNote(noteModel);
+      this.on({
+        'add': function(noteModel, notesCollection, options) {
+          notesCollection.checkIfNewNote(noteModel);
+        },
+        'remove': function(noteModel, notesCollection, options) {
+          notesCollection.updateSortIndices();
+        },
+        'rearrange': function(noteModel, notesCollection) {
+          notesCollection.updateSortIndices();
+        }
       });
-
-      this.on('remove', function(noteModel, notesCollection, options) {
-        notesCollection.updateSortIndices();
-      });
-
-      this.on('rearrange', function(noteModel, notesCollection) {
-        notesCollection.updateSortIndices();
-      })
     },
 
     checkIfNewNote: function(noteModel) {

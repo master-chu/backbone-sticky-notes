@@ -45,8 +45,8 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
 
         notes.resizable({
           containment: '#notes',
-          minWidth: 150,
-          minHeight: 150,
+          minWidth: 225,
+          minHeight: 75,
           maxWidth: 500,
           maxHeight: 500,
           stop: function(event, ui) {
