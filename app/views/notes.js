@@ -12,7 +12,9 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
         'click .color': 'updateColor',  
         'mouseenter .note': 'enableEdit',
         'mouseleave .note': 'disableEdit',
-        'mousedown .note': 'pretendToBringToFront',
+        'click .increase-font-size': 'increaseFontSize',
+        'click .decrease-font-size': 'decreaseFontSize',
+        'mousedown .note': 'pretendToBringToFront'
       },
 
       render: function() {
@@ -255,8 +257,7 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
 
       deleteNote: function(event) {
         var note = $(event.target).closest('.note'),
-          index = note.data('id'),
-          self = this;
+          index = note.data('id');
 
         var noteModel = this.collection.get(index);
         noteModel.destroy({
@@ -267,12 +268,23 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
             console.log('failed to destroy model');
           }
         });
-        self.render();
+        this.render();
       },
 
       deleteAllNotes: function(param) {
         this.collection.destroyAllModels();
         this.render();
+      },
+
+      increaseFontSize: function(event) {
+        debugger; 
+        var note = $(event.target).closest('.note'),
+          content = note.find('.content'),
+          currentFontSize = content.css('font-size'),
+          index = note.data('id');
+
+        content.css('font-size', currentFontSize + 2);
+        var noteModel = this.collection.get(index);
       },
 
       blurContent: function(event) {
