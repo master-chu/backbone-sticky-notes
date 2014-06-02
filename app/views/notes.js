@@ -9,9 +9,7 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
         'mousedown .handle': 'blurContent',
         'mousedown .ui-resizable-handle': 'blurContent',
         'blur .content': 'updateContent',
-        'click .color': 'updateColor',
-        // 'mousedown .bring-to-front': 'bringToFront',
-        // 'mouseup .bring-to-front': 'render',
+        'click .color': 'updateColor',  
         'mouseenter .note': 'enableEdit',
         'mouseleave .note': 'disableEdit',
         'mousedown .note': 'pretendToBringToFront',
@@ -270,6 +268,11 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
           }
         });
         self.render();
+      },
+
+      deleteAllNotes: function(param) {
+        this.collection.destroyAllModels();
+        this.render();
       },
 
       blurContent: function(event) {

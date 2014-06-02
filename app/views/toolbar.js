@@ -4,11 +4,16 @@ define(['backbone', 'handlebars', 'text!templates/toolbar.html'],
 
   var ToolbarView = Backbone.View.extend({
     events: {
-      'click #new-note': 'newNoteHandler'
+      'click #new-note': 'newNote',
+      'click #delete-all-notes': 'deleteAllNotes'
     },
 
-    newNoteHandler: function(){
+    newNote: function(){
       this.trigger('newNote', 'Woo!');
+    },
+
+    deleteAllNotes: function(){
+      this.trigger('deleteAllNotes');
     },
 
     render: function(){

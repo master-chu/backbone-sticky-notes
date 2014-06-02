@@ -27,7 +27,7 @@ define(['views/toolbar', 'views/notes', 'models/note', 'collections/notes'],
         toolbarView.render();
 
         notesView.listenTo(toolbarView, 'newNote', notesView.addNote);
-        //notesView.listenTo(notesCollection, 'updateNote', notesView.render);
+        notesView.listenTo(toolbarView, 'deleteAllNotes', notesView.deleteAllNotes);
 
         this.inPresentationMode = false;
         this.bindKeyboardShortcuts(toolbarView, notesView);
