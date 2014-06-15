@@ -1,11 +1,20 @@
-define(['backbone', 'handlebars', 'text!templates/toolbar.html'], 
-  function(Backbone, Handlebars, template){
+define(['backbone', 'handlebars', 'text!templates/toolbar.html', 'text!templates/info.html', 'bootstrap'], 
+  function(Backbone, Handlebars, template, infoTemplate){
   'use strict';
 
   var ToolbarView = Backbone.View.extend({
     events: {
       'click #new-note': 'newNote',
-      'click #delete-all-notes': 'deleteAllNotes'
+      'click #delete-all-notes': 'deleteAllNotes',
+    },
+
+    render: function(){
+      var compiledTemplate = Handlebars.compile(template);
+      this.$el.html(compiledTemplate());
+
+      var info = $('#info');
+      info.data('content', infoTemplate);
+      info.popover();
     },
 
     newNote: function(){
@@ -16,13 +25,8 @@ define(['backbone', 'handlebars', 'text!templates/toolbar.html'],
       this.trigger('deleteAllNotes');
     },
 
-    render: function(){
-      var compiledTemplate = Handlebars.compile(template);
-      this.$el.html(compiledTemplate());
-    },
-
     enterPresentationMode: function(){
-      this.$el.hide();
+      this.$el.hide('fast');
     },
 
     exitPresentationMode: function(){

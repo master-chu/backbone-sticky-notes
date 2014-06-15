@@ -5,7 +5,7 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
     var NotesView = Backbone.View.extend({
 
       events: {
-        'click .close': 'deleteNote',
+        'click .close-note': 'deleteNote',
         'mousedown .handle': 'blurContent',
         'mousedown .ui-resizable-handle': 'blurContent',
         'blur .content': 'updateContent',
@@ -27,6 +27,7 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
         }));
         
         this.zIndex = 0;
+        this.inPresentationMode = false;
         this.initializeNotes();
       },
 
@@ -64,6 +65,8 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
         this.initializeSize(note);
         this.initializeColor(note);
         this.initializePosition(note);
+        this.initializeFontSize(note);
+        this.initializeContent(note);
       },
 
       initializeSize: function(note) {
@@ -72,6 +75,12 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
 
         note.css('width', width + 'px');
         note.css('height', height + 'px');
+
+      },
+
+      initializeColor: function(note) {
+        var color = note.data('color');
+        note.css('background-color', color);
       },
 
       initializePosition: function(note) {
@@ -84,10 +93,19 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
         });
       },
 
-      initializeColor: function(note) {
-        var color = note.data('color');
-        note.css('background-color', color);
+      initializeFontSize: function(note) {
+        var fontSize = note.data('font-size'),
+          content = note.find('.content');
+
+        content.css('font-size', fontSize + 'px');
       },
+
+      initializeContent: function(note) {
+        var newContent = note.data('content'),
+          content = note.find('.content');
+
+        content.html(newContent);
+      }, 
 
       pretendToBringToFront: function(event){
         var note = $(event.target).closest('.note'),
@@ -194,7 +212,7 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
       updateContent: function(event) {
         var note = $(event.target).closest('.note'),
           index = note.data('id'),
-          newContent = note.find('.content').text();
+          newContent = note.find('.content').html();
 
         var noteModel = this.collection.get(index);
         if (noteModel.get('content') !== newContent) {
@@ -213,35 +231,31 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
       },
 
       enterPresentationMode: function() {
-        var handleHeight = $('.handle').height(),
+        var handle = $('.handle'),
+          handleHeight = handle.height(),
           notes = $('.note'),
           content = $('.content');
 
-        $('.handle').hide();
-        notes.resizable('disable');
+        handle.hide();
         content.attr('contenteditable', 'false');
+
+        notes.mousedown(function(event) {
+          event.stopPropagation();
+        });
 
         notes.each(function(index, value) {
           $(value).height(function(index, noteHeight) {
             return noteHeight - handleHeight;
           });
         });
+
+        this.inPresentationMode = true;
       },
 
       exitPresentationMode: function() {
-        var handleHeight = $('.handle').height(),
-          notes = $('.note'),
-          content = $('.content');
+        this.render();
+        this.inPresentationMode = false;  
 
-        $('.handle').show();
-        notes.resizable('enable');
-        content.attr('contenteditable', 'true');
-
-        notes.each(function(index, value) {
-          $(value).height(function(index, noteHeight) {
-            return noteHeight + handleHeight;
-          });
-        });
       },
 
       addNote: function(param) {
@@ -277,14 +291,49 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
       },
 
       increaseFontSize: function(event) {
-        debugger; 
         var note = $(event.target).closest('.note'),
           content = note.find('.content'),
-          currentFontSize = content.css('font-size'),
+          currentFontSize = parseInt(content.css('font-size'), 10),
+          newFontSize = currentFontSize + 8,
           index = note.data('id');
 
-        content.css('font-size', currentFontSize + 2);
-        var noteModel = this.collection.get(index);
+        if(newFontSize <= 50){
+          content.css('font-size', newFontSize + 'px');
+          var noteModel = this.collection.get(index);
+          noteModel.save({
+            fontSize: newFontSize
+          }, {
+            success: function() {
+              console.log('saved font size');
+            },
+            failure: function() {
+              console.log('failed to save font size');
+            }
+          });
+        }
+      },
+
+      decreaseFontSize: function(event) {
+        var note = $(event.target).closest('.note'),
+          content = note.find('.content'),
+          currentFontSize = parseInt(content.css('font-size'), 10),
+          newFontSize = currentFontSize - 8,
+          index = note.data('id');
+
+        if(newFontSize >= 10){
+          content.css('font-size', newFontSize + 'px');
+          var noteModel = this.collection.get(index);
+          noteModel.save({
+            fontSize: newFontSize
+          }, {
+            success: function() {
+              console.log('saved font size');
+            },
+            failure: function() {
+              console.log('failed to save font size');
+            }
+          });
+        }
       },
 
       blurContent: function(event) {
@@ -295,12 +344,24 @@ define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!
       },
 
       enableEdit: function(event) {
-        var note = $(event.target).closest('.note');
-        note.resizable('enable');
+        var note = $(event.target).closest('.note'),
+          content = note.find('.content'),
+          zIndex = note.css('z-index');
+
+        content.css('overflow', 'scroll');
+
+        if (!this.inPresentationMode) {
+          note.resizable('enable');
+        }
+
+        $('.ui-resizable-handle').css('z-index', zIndex);
       },
 
       disableEdit: function(event) {
-        var note = $(event.target).closest('.note');
+        var note = $(event.target).closest('.note'),
+          content = note.find('.content');
+
+        content.css('overflow', 'hidden');
         note.resizable('disable');
       },
 

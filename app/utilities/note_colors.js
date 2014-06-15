@@ -2,9 +2,12 @@ define(function() {
 
   var NoteColors = [
     'skyblue',
-    'crimson',
     'chartreuse',
-    'slategrey'
+    'coral',
+    'gold',
+    'palevioletred',
+    'plum',
+    'white'
   ];
 
   return NoteColors;

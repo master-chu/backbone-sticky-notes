@@ -1,36 +1,37 @@
 <div>
 {{#each notes}}
-  <div class="note" data-id="{{id}}" data-index="{{@index}}" data-x="{{x}}" data-y="{{y}}" data-width="{{width}}" data-height="{{height}}" data-color="{{color}}">
+  <div class="note" data-id="{{id}}" data-index="{{@index}}" data-x="{{x}}" data-y="{{y}}" data-width="{{width}}" data-height="{{height}}" data-color="{{color}}" data-font-size="{{fontSize}}" data-content="{{content}}">
     <div class="handle">
       <span class="handle-content">
-        click here to drag
+
       </span>
-      <button class='close handle-item'>
+      <button class='close-note handle-item'>
         x
       </button>
       <div class="dropdown btn-group handle-item">
-        <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-          Colors <span class="caret"></span>
-        </a>
+        <button class="handle-item dropdown-toggle" data-toggle="dropdown" href="#">
+          <span class="caret"></span>
+        </button>
         <ul class="dropdown-menu">
           {{#each ../colors}}
             <li style="background-color:{{this}}">
-              <a class="color" data-color="{{this}}" href="#">{{@index}}.) {{this}}</a>
+              <a class="color" data-color="{{this}}" href="#"></a>
             </li>
           {{/each}}
         </ul>
       </div>
-      <button class='increase-font-size handle-item'>
-        +
-      </button>
+      <button class='increase-font-size handle-item'> + </button>
+      <button class='decrease-font-size handle-item'> - </button>
     </div>
     <div class="content" contenteditable="true">
-      {{content}}
+      
     </div>
   </div>
 {{/each}}
 
+{{!--
 {{#each notes}}
   {{color}}: {{sortIndex}}
-{{/each}}
+{{/each}} 
+--}}
 </div>

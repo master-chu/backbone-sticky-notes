@@ -21,8 +21,9 @@ define(function() {
       'handlebars': {
         'exports': 'Handlebars'
       },
-      'bootstrap': {
-        deps: ['jquery']
+      "bootstrap": {
+        deps: ["jquery"],
+        exports: "$.fn.popover"
       },
       'jquery-ui': {
         deps: ['jquery']

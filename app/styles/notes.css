@@ -1,22 +1,45 @@
+body {
+  background-color: #333 !important;
+  color: #CCC !important;
+  font-size: 12px !important;
+  font-weight: bold !important;
+  padding: 10px !important;
+}
+
+#toolbar {
+  padding-bottom: 8px;
+}
+
+#info {
+  cursor: help;
+}
+
 #notes {
   border: 1px solid darkgrey;
+  background-color: whitesmoke;
   min-width: 800px;
-  min-height: 600px;
+  min-height: 800px;
+}
+
+#wrapper button, .note {
+  color: #333;
 }
 
 .note {
   position: absolute !important;
-  box-shadow: 5px 5px 5px black;
+  box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
   overflow: hidden;
 }
 
 .note .handle {
-  background-color: grey;
+  background-color: #333;
   cursor: move;
+  height: 24px;
+  padding: 2px;
 }
 
 .note .handle:hover {
-  background-color: lightgrey;
+  background-color: #AAA;
 }
 
 .note .handle-item {
@@ -24,17 +47,26 @@
   height: 20px;
 }
 
-.note .close {
+.note .close-note {
   width: 20px;
 }
 
 .note .content {
   padding: 2px 6px;
   height: 100%;
+
+  background-color: rgba(255,255,255,0.5);
 }
 
+.note .color {
+  height: 15px;
+}
 
-/* Bootstrap overrides */
+.note .color:hover {
+  border: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+/* Bootstrap/jquery overrides */
 a.btn.dropdown-toggle {
   padding: 0px;
   color: black;
@@ -43,3 +75,32 @@ a.btn.dropdown-toggle {
 .note.ui-state-disabled {
   opacity: 1;
 }
+
+.note .dropdown-menu {
+  top: 100%;
+  left: 0px;
+  width: 42px;
+  z-index: 1000;
+  display: none;
+  float: left;
+  min-width: 0;
+  padding: 0px 0px;
+  margin: 0px 0px 0px;
+  list-style: none outside none;
+  font-size: 14px;
+  background-color: #FFF;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 0px;
+  box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
+  background-clip: padding-box;
+}
+
+.note .dropdown-menu li {
+  padding: 0;
+  margin: 0;
+}
+
+.note .dropdown-menu li a:hover{
+  background-color: inherit;
+}
+
