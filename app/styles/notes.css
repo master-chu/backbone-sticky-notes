@@ -10,6 +10,18 @@ body {
   padding-bottom: 8px;
 }
 
+#toolbar .p:hover {
+  cursor: pointer;
+}
+
+#toolbar .p, #info {
+  color: gold;
+}
+
+#toolbar .p:hover, #info:hover {
+  color: yellow;
+}
+
 #info {
   cursor: help;
 }
@@ -54,8 +66,6 @@ body {
 .note .content {
   padding: 2px 6px;
   height: 100%;
-
-  background-color: rgba(255,255,255,0.5);
 }
 
 .note .color {
@@ -67,6 +77,11 @@ body {
 }
 
 /* Bootstrap/jquery overrides */
+
+#toolbar .popover {
+  color: #333;
+}
+
 a.btn.dropdown-toggle {
   padding: 0px;
   color: black;

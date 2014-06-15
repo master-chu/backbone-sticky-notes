@@ -1,371 +1,383 @@
-define(['backbone', 'handlebars', 'models/note', 'utilities/note_colors', 'text!templates/notes.html', 'jquery-ui', 'bootstrap'],
-  function(Backbone, Handlebars, NoteModel, NoteColors, template) {
-    'use strict';
+define(function(require) {
+  'use strict';
+  var Backbone = require('backbone'),
+    Handlebars = require('handlebars'),
+    NoteModel = require('models/note'),
+    NoteColors = require('utilities/note_colors'),
+    template = require('text!templates/notes.html');
+  require('jquery-ui');
+  require('bootstrap');
 
-    var NotesView = Backbone.View.extend({
+  var NotesView = Backbone.View.extend({
 
-      events: {
-        'click .close-note': 'deleteNote',
-        'mousedown .handle': 'blurContent',
-        'mousedown .ui-resizable-handle': 'blurContent',
-        'blur .content': 'updateContent',
-        'click .color': 'updateColor',  
-        'mouseenter .note': 'enableEdit',
-        'mouseleave .note': 'disableEdit',
-        'click .increase-font-size': 'increaseFontSize',
-        'click .decrease-font-size': 'decreaseFontSize',
-        'mousedown .note': 'pretendToBringToFront'
-      },
+    events: {
+      'click .close-note': 'deleteNote',
+      'mousedown .handle': 'blurContent',
+      'mousedown .ui-resizable-handle': 'blurContent',
+      'blur .content': 'updateContent',
+      'click .color': 'updateColor',
+      'mouseenter .note': 'enableEdit',
+      'mouseleave .note': 'disableEdit',
+      'click .increase-font-size': 'increaseFontSize',
+      'click .decrease-font-size': 'decreaseFontSize',
+      'mousedown .note': 'pretendToBringToFront'
+    },
 
-      render: function() {
-        console.log('render');
-        var notes = this.collection.toJSON();
-        var compiledTemplate = Handlebars.compile(template);
-        this.$el.html(compiledTemplate({
-          notes: notes,
-          colors: NoteColors
-        }));
-        
-        this.zIndex = 0;
-        this.inPresentationMode = false;
-        this.initializeNotes();
-      },
+    render: function() {
+      console.log('render');
+      var notes = this.collection.toJSON();
+      var compiledTemplate = Handlebars.compile(template);
+      this.$el.html(compiledTemplate({
+        notes: notes,
+        colors: NoteColors
+      }));
 
-      initializeNotes: function() {
-        var self = this,
-          notes = $('.note');
+      this.zIndex = 0;
+      this.inPresentationMode = false;
+      this.initializeNotes();
+    },
 
-        notes.each(function(index, value) {
-          self.initializeNote($(value));
-        });
+    initializeNotes: function() {
+      var self = this,
+        notes = $('.note');
 
-        notes.draggable({
-          containment: '#notes',
-          handle: '.handle',
-          stop: function(event, ui) {
-            self.updatePosition(event, ui);
-          }
-        });
+      notes.each(function(index, value) {
+        self.initializeNote($(value));
+      });
 
-        notes.resizable({
-          containment: '#notes',
-          minWidth: 225,
-          minHeight: 75,
-          maxWidth: 500,
-          maxHeight: 500,
-          stop: function(event, ui) {
-            self.updateSize(event, ui);
-          }
-        });
+      notes.draggable({
+        containment: '#notes',
+        handle: '.handle',
+        stop: function(event, ui) {
+          self.updatePosition(event, ui);
+        }
+      });
 
-        notes.resizable('disable');
-      },
+      notes.resizable({
+        containment: '#notes',
+        minWidth: 225,
+        minHeight: 75,
+        maxWidth: 500,
+        maxHeight: 500,
+        stop: function(event, ui) {
+          self.updateSize(event, ui);
+        }
+      });
 
-      initializeNote: function(note) {
-        this.initializeSize(note);
-        this.initializeColor(note);
-        this.initializePosition(note);
-        this.initializeFontSize(note);
-        this.initializeContent(note);
-      },
+      notes.resizable('disable');
+    },
 
-      initializeSize: function(note) {
-        var width = note.data('width'),
-          height = note.data('height');
+    initializeNote: function(note) {
+      this.initializeSize(note);
+      this.initializeColor(note);
+      this.initializePosition(note);
+      this.initializeFontSize(note);
+      this.initializeContent(note);
+    },
 
-        note.css('width', width + 'px');
-        note.css('height', height + 'px');
+    initializeSize: function(note) {
+      var width = note.data('width'),
+        height = note.data('height');
 
-      },
+      note.css('width', width + 'px');
+      note.css('height', height + 'px');
 
-      initializeColor: function(note) {
-        var color = note.data('color');
-        note.css('background-color', color);
-      },
+    },
 
-      initializePosition: function(note) {
-        var x = note.data('x'),
-          y = note.data('y');
+    initializeColor: function(note) {
+      var color = note.data('color');
+      note.css('background-color', color);
+    },
 
-        note.offset({
-          left: x,
-          top: y
-        });
-      },
+    initializePosition: function(note) {
+      var x = note.data('x'),
+        y = note.data('y');
 
-      initializeFontSize: function(note) {
-        var fontSize = note.data('font-size'),
-          content = note.find('.content');
+      note.offset({
+        left: x,
+        top: y
+      });
+    },
 
-        content.css('font-size', fontSize + 'px');
-      },
+    initializeFontSize: function(note) {
+      var fontSize = note.data('font-size'),
+        content = this.getContent(note);
 
-      initializeContent: function(note) {
-        var newContent = note.data('content'),
-          content = note.find('.content');
+      content.css('font-size', fontSize + 'px');
+    },
 
-        content.html(newContent);
-      }, 
+    initializeContent: function(note) {
+      var newContent = note.data('content'),
+        content = this.getContent(note);
 
-      pretendToBringToFront: function(event){
-        var note = $(event.target).closest('.note'),
-          index = note.data('id'),
-          noteModel = this.collection.get(index);
+      content.html(newContent);
+    },
 
-        this.zIndex += 1;
-        note.css('z-index', this.zIndex);
-        console.log('z-index: ' + this.zIndex);
-      },
+    pretendToBringToFront: function(event) {
+      var note = $(event.target).closest('.note'),
+        index = this.getIndex(note),
+        noteModel = this.collection.get(index);
 
-      bringToFront: function(event) {
-        console.log('bring to front');
+      this.zIndex += 1;
+      note.css('z-index', this.zIndex);
+      console.log('z-index: ' + this.zIndex);
+    },
 
-        var note = $(event.target).closest('.note'),
-          index = note.data('id'),
-          noteModel = this.collection.get(index);
+    bringToFront: function(note) {
+      console.log('bring to front');
 
-        this.collection.remove(noteModel);
-        this.collection.add(noteModel, {
-          at: this.collection.length
-        });
+      var index = this.getIndex(note),
+        noteModel = this.collection.get(index);
 
-        noteModel.trigger('rearrange', noteModel, this.collection);
-      },
+      this.collection.remove(noteModel);
+      this.collection.add(noteModel, {
+        at: this.collection.length
+      });
 
-      updateSize: function(event, ui) {
-        var note = $(event.target),
-          index = note.data('id'),
-          noteModel = this.collection.get(index),
-          newWidth = ui.size.width,
-          newHeight = ui.size.height;
+      noteModel.trigger('rearrange', noteModel, this.collection);
+    },
 
-        note.data('width', newWidth);
-        note.data('height', newHeight);
+    updateSize: function(event, ui) {
+      var note = $(event.target),
+        index = this.getIndex(note),
+        noteModel = this.collection.get(index),
+        newWidth = ui.size.width,
+        newHeight = ui.size.height;
 
+      note.data('width', newWidth);
+      note.data('height', newHeight);
+
+      noteModel.save({
+        width: newWidth,
+        height: newHeight
+      }, {
+        success: function() {
+          console.log('saved size');
+        },
+        failure: function() {
+          console.log('failed to save size');
+        },
+      });
+      this.bringToFront(note);
+    },
+
+    updateColor: function(event) {
+      var note = this.getNote(event),
+        index = this.getIndex(note),
+        color = $(event.target).data('color'),
+        noteModel = this.collection.get(index);
+
+      noteModel.save({
+        color: color
+      }, {
+        success: function() {
+          console.log('saved color');
+        },
+        failure: function() {
+          console.log('failed to save color');
+        }
+      });
+      this.bringToFront(note);
+      this.render();
+    },
+
+    updatePosition: function(event, ui) {
+      var note = this.getNote(event),
+        index = this.getIndex(note),
+        noteModel = this.collection.get(index),
+        newX = note.offset().left,
+        newY = note.offset().top;
+
+      note.data('x', newX);
+      note.data('y', newY);
+
+      note.effect('bounce', {
+        distance: 4,
+        times: 2
+      }, 'fast', function() {
+
+      });
+
+      noteModel.save({
+        x: newX,
+        y: newY
+      }, {
+        success: function() {
+          console.log('saved position');
+        },
+        failure: function() {
+          console.log('failed to save position');
+        },
+      });
+      this.bringToFront(note);
+    },
+
+    updateContent: function(event) {
+      var note = this.getNote(event),
+        index = this.getIndex(note),
+        newContent = this.getContent(note).html();
+
+      var noteModel = this.collection.get(index);
+      if (noteModel.get('content') !== newContent) {
         noteModel.save({
-          width: newWidth,
-          height: newHeight
+          content: newContent
         }, {
           success: function() {
-            console.log('saved size');
+            console.log('saved content');
           },
           failure: function() {
-            console.log('failed to save size');
-          },
-        });
-        this.bringToFront(event);
-      },
-
-      updateColor: function(event) {
-        var note = $(event.target).closest('.note'),
-          index = note.data('id'),
-          color = $(event.target).data('color'),
-          noteModel = this.collection.get(index),
-          self = this;
-
-        noteModel.save({
-          color: color
-        }, {
-          success: function() {
-            console.log('saved color');
-          },
-          failure: function() {
-            console.log('failed to save color');
+            console.log('failed to save content');
           }
         });
-        this.bringToFront(event);
-        this.render();
-      },
+      }
+      this.bringToFront(note);
+    },
 
-      updatePosition: function(event, ui) {
-        var note = $(event.target).closest('.note'),
-          index = note.data('id'),
-          noteModel = this.collection.get(index),
-          newX = note.offset().left,
-          newY = note.offset().top,
-          self = this;
+    enterPresentationMode: function() {
+      var handles = $('.handle'),
+        handleHeight = handles.height(),
+        notes = $('.note'),
+        contents = $('.content');
 
-        note.data('x', newX);
-        note.data('y', newY);
+      handles.hide();
+      contents.attr('contenteditable', 'false');
 
-        note.effect('bounce', {
-          distance: 4,
-          times: 2
-        }, 'fast', function(){
+      notes.mousedown(function(event) {
+        event.stopPropagation();
+      });
 
+      notes.each(function(index, value) {
+        $(value).height(function(index, noteHeight) {
+          return noteHeight - handleHeight;
         });
+      });
 
-        noteModel.save({
-          x: newX,
-          y: newY
-        }, {
-          success: function() {
-            console.log('saved position');
-          },
-          failure: function() {
-            console.log('failed to save position');
-          },
-        });
-        this.bringToFront(event);
-      },
+      this.inPresentationMode = true;
+    },
 
-      updateContent: function(event) {
-        var note = $(event.target).closest('.note'),
-          index = note.data('id'),
-          newContent = note.find('.content').html();
+    exitPresentationMode: function() {
+      this.render();
+      this.inPresentationMode = false;
+    },
 
+    addNote: function(param) {
+      var self = this;
+      self.collection.create({ /* see model defaults */ }, {
+        success: function() {
+          self.render();
+          console.log('created new note');
+        }
+      });
+
+    },
+
+    deleteNote: function(event) {
+      var note = this.getNote(event),
+        index = this.getIndex(note);
+
+      var noteModel = this.collection.get(index);
+      noteModel.destroy({
+        success: function() {
+          console.log('destroyed model');
+        },
+        failure: function() {
+          console.log('failed to destroy model');
+        }
+      });
+      this.render();
+    },
+
+    deleteAllNotes: function(param) {
+      this.collection.destroyAllModels();
+      this.render();
+    },
+
+    increaseFontSize: function(event) {
+      var note = this.getNote(event),
+        content = this.getContent(note),
+        currentFontSize = parseInt(content.css('font-size'), 10),
+        newFontSize = currentFontSize + 8,
+        index = this.getIndex(note);
+
+      if (newFontSize <= 50) {
+        content.css('font-size', newFontSize + 'px');
         var noteModel = this.collection.get(index);
-        if (noteModel.get('content') !== newContent) {
-          noteModel.save({
-            content: newContent
-          }, {
-            success: function() {
-              console.log('saved content');
-            },
-            failure: function() {
-              console.log('failed to save content');
-            }
-          });
-        }
-        this.bringToFront(event);
-      },
-
-      enterPresentationMode: function() {
-        var handle = $('.handle'),
-          handleHeight = handle.height(),
-          notes = $('.note'),
-          content = $('.content');
-
-        handle.hide();
-        content.attr('contenteditable', 'false');
-
-        notes.mousedown(function(event) {
-          event.stopPropagation();
-        });
-
-        notes.each(function(index, value) {
-          $(value).height(function(index, noteHeight) {
-            return noteHeight - handleHeight;
-          });
-        });
-
-        this.inPresentationMode = true;
-      },
-
-      exitPresentationMode: function() {
-        this.render();
-        this.inPresentationMode = false;  
-
-      },
-
-      addNote: function(param) {
-        var self = this;
-        self.collection.create({ /* see model defaults */ }, {
+        noteModel.save({
+          fontSize: newFontSize
+        }, {
           success: function() {
-            self.render();
-            console.log('created new note');
-          }
-        });
-
-      },
-
-      deleteNote: function(event) {
-        var note = $(event.target).closest('.note'),
-          index = note.data('id');
-
-        var noteModel = this.collection.get(index);
-        noteModel.destroy({
-          success: function() {
-            console.log('destroyed model');
+            console.log('saved font size');
           },
           failure: function() {
-            console.log('failed to destroy model');
+            console.log('failed to save font size');
           }
         });
-        this.render();
-      },
+      }
+    },
 
-      deleteAllNotes: function(param) {
-        this.collection.destroyAllModels();
-        this.render();
-      },
+    decreaseFontSize: function(event) {
+      var note = this.getNote(event),
+        content = this.getContent(note),
+        currentFontSize = parseInt(content.css('font-size'), 10),
+        newFontSize = currentFontSize - 8,
+        index = this.getIndex(note);
 
-      increaseFontSize: function(event) {
-        var note = $(event.target).closest('.note'),
-          content = note.find('.content'),
-          currentFontSize = parseInt(content.css('font-size'), 10),
-          newFontSize = currentFontSize + 8,
-          index = note.data('id');
+      if (newFontSize >= 10) {
+        content.css('font-size', newFontSize + 'px');
+        var noteModel = this.collection.get(index);
+        noteModel.save({
+          fontSize: newFontSize
+        }, {
+          success: function() {
+            console.log('saved font size');
+          },
+          failure: function() {
+            console.log('failed to save font size');
+          }
+        });
+      }
+    },
 
-        if(newFontSize <= 50){
-          content.css('font-size', newFontSize + 'px');
-          var noteModel = this.collection.get(index);
-          noteModel.save({
-            fontSize: newFontSize
-          }, {
-            success: function() {
-              console.log('saved font size');
-            },
-            failure: function() {
-              console.log('failed to save font size');
-            }
-          });
-        }
-      },
+    blurContent: function(event) {
+      var note = this.getNote(event),
+        content = this.getContent(note);
 
-      decreaseFontSize: function(event) {
-        var note = $(event.target).closest('.note'),
-          content = note.find('.content'),
-          currentFontSize = parseInt(content.css('font-size'), 10),
-          newFontSize = currentFontSize - 8,
-          index = note.data('id');
+      content.blur();
+    },
 
-        if(newFontSize >= 10){
-          content.css('font-size', newFontSize + 'px');
-          var noteModel = this.collection.get(index);
-          noteModel.save({
-            fontSize: newFontSize
-          }, {
-            success: function() {
-              console.log('saved font size');
-            },
-            failure: function() {
-              console.log('failed to save font size');
-            }
-          });
-        }
-      },
+    enableEdit: function(event) {
+      var note = this.getNote(event),
+        content = this.getContent(note),
+        zIndex = note.css('z-index');
 
-      blurContent: function(event) {
-        var note = $(event.target).closest('.note'),
-          content = note.find('.content');
-
-        content.blur();
-      },
-
-      enableEdit: function(event) {
-        var note = $(event.target).closest('.note'),
-          content = note.find('.content'),
-          zIndex = note.css('z-index');
-
+      if (!this.inPresentationMode) {
+        note.resizable('enable');
         content.css('overflow', 'scroll');
+      }
 
-        if (!this.inPresentationMode) {
-          note.resizable('enable');
-        }
+      $('.ui-resizable-handle').css('z-index', zIndex);
+    },
 
-        $('.ui-resizable-handle').css('z-index', zIndex);
-      },
+    disableEdit: function(event) {
+      var note = this.getNote(event),
+        content = this.getContent(note);
 
-      disableEdit: function(event) {
-        var note = $(event.target).closest('.note'),
-          content = note.find('.content');
+      content.css('overflow', 'hidden');
+      note.resizable('disable');
+    },
 
-        content.css('overflow', 'hidden');
-        note.resizable('disable');
-      },
+    getNote: function(event) {
+      return $(event.target).closest('.note');
+    },
 
-    });
+    getContent: function(note) {
+      return note.find('.content');
+    },
 
-    return NotesView;
+    getIndex: function(note) {
+      return note.data('id');
+    }
   });
+
+  return NotesView;
+});

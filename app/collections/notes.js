@@ -1,5 +1,8 @@
-define(['backbone', 'models/note', 'localstorage'], function(Backbone, NoteModel) {
+define(function(require) {
   'use strict';
+  var Backbone = require('backbone'),
+    NoteModel = require('models/note');
+  require('localstorage');
 
   var NotesCollection = Backbone.Collection.extend({
     model: NoteModel,

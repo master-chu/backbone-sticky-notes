@@ -1,6 +1,10 @@
-define(['backbone', 'handlebars', 'text!templates/toolbar.html', 'text!templates/info.html', 'bootstrap'], 
-  function(Backbone, Handlebars, template, infoTemplate){
+define(function(require){
   'use strict';
+  var Backbone = require('backbone'),
+    Handlebars = require('handlebars'),
+    template = require('text!templates/toolbar.html'),
+    infoTemplate = require('text!templates/info.html');
+  require('bootstrap');
 
   var ToolbarView = Backbone.View.extend({
     events: {

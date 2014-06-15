@@ -1,7 +1,10 @@
-define(['views/toolbar', 'views/notes', 'models/note', 'collections/notes'],
-  function(ToolbarView, NotesView, NoteModel, NotesCollection) {
+define(function(require) {
     'use strict';
-
+    var ToolbarView = require('views/toolbar'),
+      NotesView = require('views/notes'),
+      NoteModel = require('models/note'),
+      NotesCollection = require('collections/notes');
+      
     var btApp = {
       initialize: function() {
 
@@ -29,11 +32,13 @@ define(['views/toolbar', 'views/notes', 'models/note', 'collections/notes'],
         notesView.listenTo(toolbarView, 'newNote', notesView.addNote);
         notesView.listenTo(toolbarView, 'deleteAllNotes', notesView.deleteAllNotes);
 
+
+
         this.inPresentationMode = false;
-        this.bindKeyboardShortcuts(toolbarView, notesView);
+        this.bindPresentationModeShortcuts(toolbarView, notesView);
       },
 
-      bindKeyboardShortcuts: function(toolbarView, notesView) {
+      bindPresentationModeShortcuts: function(toolbarView, notesView) {
         var self = this;
         $('body').keydown(function(event) {
           var focusedOnUserInput = $(document.activeElement).hasClass('content'),
@@ -43,6 +48,10 @@ define(['views/toolbar', 'views/notes', 'models/note', 'collections/notes'],
           if (!focusedOnUserInput && pressedKey == p) {
             self.togglePresentationMode(toolbarView, notesView);
           }
+        });
+
+        $('.p').click(function(){
+          self.togglePresentationMode(toolbarView, notesView);
         });
       },
 
